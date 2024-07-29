@@ -1,34 +1,59 @@
+# Specify the version of the configuration format
 version: 2.1
 
+# Define jobs to be executed
 jobs:
+  # Job to build the project
   build:
+    # Use a Docker image with Python 3.11 for this job
     docker:
       - image: cimg/python:3.11
+    # Define the steps to be executed in this job
     steps:
+      # Step to check out the code from the repository
       - checkout
+      # Run the main.py script
       - run: python main.py
+
+  # Job to test the project
   test:
+    # Use the same Docker image with Python 3.11 for consistency
     docker:
       - image: cimg/python:3.11
+    # Define the steps to be executed in this job
     steps:
+      # Step to check out the code from the repository
       - checkout
+      # Run the tests.py script
       - run: python tests.py
+
+  # Job to deploy the project
   deploy:
+    # Use the same Docker image with Python 3.11 for consistency
     docker:
       - image: cimg/python:3.11
+    # Define the steps to be executed in this job
     steps:
+      # Echo a message indicating deployment to the production server
       - run: echo "Deploying to production server"
 
+# Define workflows to orchestrate jobs
 workflows:
+  # Workflow to build, test, and deploy the project
   build_and_test_deploy:
+    # List the jobs to be executed in the workflow
     jobs:
+      # First, run the build job
       - build
+      # Then, run the test job, but only if the build job succeeds
       - test:
           requires:
-            - build 
+            - build
+      # Finally, run the deploy job, but only if the test job succeeds
       - deploy:
           requires:
             - test
+          # Only deploy when changes are made to the main branch
           filters:
             branches:
               only: main
